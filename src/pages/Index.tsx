@@ -53,15 +53,16 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Main Content - 3 Column Layout */}
-      <main className="container max-w-7xl mx-auto px-4 pb-8 mt-4">
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_280px] gap-6">
-          {/* Left Column - Timer */}
-          <div className="lg:sticky lg:top-20 lg:self-start">
+      {/* Main Content - 2 Column Layout */}
+      <main className="container max-w-5xl mx-auto px-4 pb-8 mt-4">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
+          {/* Left Column - Timer & Music Player */}
+          <div className="lg:sticky lg:top-20 lg:self-start space-y-4">
             <Timer />
+            <MusicPlayer />
           </div>
 
-          {/* Middle Column - Tasks */}
+          {/* Right Column - Tasks */}
           <div className="space-y-4">
             {/* Date Navigation */}
             <DateNavigation
@@ -103,11 +104,6 @@ const Index = () => {
             )}
 
             <AddCategory onAdd={addCategory} />
-          </div>
-
-          {/* Right Column - Music Player */}
-          <div className="lg:sticky lg:top-20 lg:self-start">
-            <MusicPlayer />
           </div>
         </div>
       </main>
