@@ -26,6 +26,12 @@ const MusicPlayer = () => {
   const [isApiReady, setIsApiReady] = useState(false);
   const [isPlayerReady, setIsPlayerReady] = useState(false);
   const playerRef = useRef<any>(null);
+  const currentIndexRef = useRef<number>(0);
+
+  // Keep ref in sync with state
+  useEffect(() => {
+    currentIndexRef.current = currentIndex;
+  }, [currentIndex]);
 
   // Load YouTube IFrame API
   useEffect(() => {
@@ -99,8 +105,8 @@ const MusicPlayer = () => {
             setIsPlaying(false);
           } else if (event.data === 0) {
             // Song ended - play next song (loop to beginning if at end)
-            setIsPlaying(false);
-            const nextIndex = (currentIndex + 1) % PLAYLIST.length;
+            const nextIndex = (currentIndexRef.current + 1) % PLAYLIST.length;
+            currentIndexRef.current = nextIndex;
             setCurrentIndex(nextIndex);
             const nextSong = PLAYLIST[nextIndex];
             playerRef.current?.loadVideoById({
