@@ -6,6 +6,7 @@ import { AddCategory } from '@/components/AddCategory';
 import { SettingsPanel } from '@/components/SettingsPanel';
 import { Timer } from '@/components/Timer';
 import { MusicPlayer } from '@/components/MusicPlayer';
+import { MonthlyPayments } from '@/components/MonthlyPayments';
 
 const Index = () => {
   const {
@@ -60,6 +61,7 @@ const Index = () => {
           <div className="lg:sticky lg:top-20 lg:self-start space-y-4">
             <Timer />
             <MusicPlayer />
+            <MonthlyPayments />
           </div>
 
           {/* Right Column - Tasks */}
