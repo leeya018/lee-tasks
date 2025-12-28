@@ -168,41 +168,43 @@ export const MonthlyPayments = () => {
           </div>
 
           {/* Add New Item */}
-          <div className="flex gap-2">
+          <div className="space-y-2">
             <Input
-              placeholder="Name"
+              placeholder="Payment name"
               value={newName}
               onChange={(e) => setNewName(e.target.value)}
               onKeyPress={handleKeyPress}
-              className="flex-1 h-9 text-sm"
+              className="h-9 text-sm w-full"
             />
-            <Input
-              type="number"
-              placeholder="Price"
-              value={newPrice}
-              onChange={(e) => setNewPrice(e.target.value)}
-              onKeyPress={handleKeyPress}
-              className="w-20 h-9 text-sm"
-              min="0"
-              step="0.01"
-            />
-            <Select value={newCurrency} onValueChange={(v: 'USD' | 'NIS') => setNewCurrency(v)}>
-              <SelectTrigger className="w-20 h-9">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="USD">$</SelectItem>
-                <SelectItem value="NIS">₪</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button
-              size="icon"
-              className="h-9 w-9"
-              onClick={handleAddItem}
-              disabled={!newName.trim() || !newPrice.trim()}
-            >
-              <Plus className="h-4 w-4" />
-            </Button>
+            <div className="flex gap-2">
+              <Input
+                type="number"
+                placeholder="Price"
+                value={newPrice}
+                onChange={(e) => setNewPrice(e.target.value)}
+                onKeyPress={handleKeyPress}
+                className="flex-1 h-9 text-sm"
+                min="0"
+                step="0.01"
+              />
+              <Select value={newCurrency} onValueChange={(v: 'USD' | 'NIS') => setNewCurrency(v)}>
+                <SelectTrigger className="w-20 h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border border-border">
+                  <SelectItem value="USD">$</SelectItem>
+                  <SelectItem value="NIS">₪</SelectItem>
+                </SelectContent>
+              </Select>
+              <Button
+                size="icon"
+                className="h-9 w-9"
+                onClick={handleAddItem}
+                disabled={!newName.trim() || !newPrice.trim()}
+              >
+                <Plus className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
