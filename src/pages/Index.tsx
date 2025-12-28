@@ -4,6 +4,7 @@ import { DateNavigation } from '@/components/DateNavigation';
 import { CategoryCard } from '@/components/CategoryCard';
 import { AddCategory } from '@/components/AddCategory';
 import { SettingsPanel } from '@/components/SettingsPanel';
+import { Timer } from '@/components/Timer';
 
 const Index = () => {
   const {
@@ -53,6 +54,11 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="container max-w-2xl mx-auto px-4 pb-8">
+        {/* Timer */}
+        <div className="mt-4">
+          <Timer />
+        </div>
+
         {/* Date Navigation */}
         <DateNavigation
           selectedDate={selectedDate}
