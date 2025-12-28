@@ -156,6 +156,61 @@ export function useTaskManager() {
     });
   }, [dateKey, selectedDate]);
 
+  const copyTaskToNextDay = useCallback((taskId: string) => {
+    setData(prev => {
+      const task = prev.tasks[dateKey]?.find(t => t.id === taskId);
+      if (!task) return prev;
+
+      const nextDateKey = formatDateKey(addDays(selectedDate, 1));
+      const copiedTask: Task = { ...task, id: generateId(), done: false };
+
+      const newTasks = { ...prev.tasks };
+      newTasks[nextDateKey] = [...(newTasks[nextDateKey] || []), copiedTask];
+
+      return { ...prev, tasks: newTasks };
+    });
+  }, [dateKey, selectedDate]);
+
+  const moveCategoryTasksToNextDay = useCallback((categoryId: string) => {
+    setData(prev => {
+      const categoryTasks = prev.tasks[dateKey]?.filter(t => t.categoryId === categoryId) || [];
+      if (categoryTasks.length === 0) return prev;
+
+      const nextDateKey = formatDateKey(addDays(selectedDate, 1));
+      const movedTasks = categoryTasks.map(t => ({ ...t, done: false }));
+
+      // Remove from current date
+      const currentFiltered = prev.tasks[dateKey]?.filter(t => t.categoryId !== categoryId) || [];
+      const newTasks = { ...prev.tasks };
+      
+      if (currentFiltered.length > 0) {
+        newTasks[dateKey] = currentFiltered;
+      } else {
+        delete newTasks[dateKey];
+      }
+
+      // Add to next date
+      newTasks[nextDateKey] = [...(newTasks[nextDateKey] || []), ...movedTasks];
+
+      return { ...prev, tasks: newTasks };
+    });
+  }, [dateKey, selectedDate]);
+
+  const copyCategoryTasksToNextDay = useCallback((categoryId: string) => {
+    setData(prev => {
+      const categoryTasks = prev.tasks[dateKey]?.filter(t => t.categoryId === categoryId) || [];
+      if (categoryTasks.length === 0) return prev;
+
+      const nextDateKey = formatDateKey(addDays(selectedDate, 1));
+      const copiedTasks = categoryTasks.map(t => ({ ...t, id: generateId(), done: false }));
+
+      const newTasks = { ...prev.tasks };
+      newTasks[nextDateKey] = [...(newTasks[nextDateKey] || []), ...copiedTasks];
+
+      return { ...prev, tasks: newTasks };
+    });
+  }, [dateKey, selectedDate]);
+
   // Navigation
   const goToPreviousDay = useCallback(() => {
     setSelectedDate(prev => addDays(prev, -1));
@@ -193,6 +248,9 @@ export function useTaskManager() {
     toggleTask,
     deleteTask,
     moveTaskToNextDay,
+    copyTaskToNextDay,
+    moveCategoryTasksToNextDay,
+    copyCategoryTasksToNextDay,
 
     // Navigation
     goToPreviousDay,
