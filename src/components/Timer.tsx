@@ -5,8 +5,8 @@ import { cn } from '@/lib/utils';
 import timerSound from '@/assets/melech_sound.ogg';
 
 const TIMER_OPTIONS = [
-  { label: '1 min', seconds: 60 },
   { label: '5 min', seconds: 300 },
+  { label: '15 min', seconds: 900 },
   { label: '30 min', seconds: 1800 },
 ];
 
