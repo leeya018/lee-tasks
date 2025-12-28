@@ -5,6 +5,7 @@ import { CategoryCard } from '@/components/CategoryCard';
 import { AddCategory } from '@/components/AddCategory';
 import { SettingsPanel } from '@/components/SettingsPanel';
 import { Timer } from '@/components/Timer';
+import { MusicPlayer } from '@/components/MusicPlayer';
 
 const Index = () => {
   const {
@@ -54,6 +55,11 @@ const Index = () => {
 
       {/* Main Content */}
       <main className="container max-w-2xl mx-auto px-4 pb-8">
+        {/* Music Player */}
+        <div className="mt-4">
+          <MusicPlayer />
+        </div>
+
         {/* Timer */}
         <div className="mt-4">
           <Timer />
