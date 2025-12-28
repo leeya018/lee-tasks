@@ -18,12 +18,14 @@ declare global {
   }
 }
 
+const PLAYER_ID = 'youtube-music-player';
+
 const MusicPlayer = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isApiReady, setIsApiReady] = useState(false);
+  const [isPlayerReady, setIsPlayerReady] = useState(false);
   const playerRef = useRef<any>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
 
   // Load YouTube IFrame API
   useEffect(() => {
@@ -32,69 +34,101 @@ const MusicPlayer = () => {
       return;
     }
 
+    // Store callback before script loads
+    window.onYouTubeIframeAPIReady = () => {
+      console.log('YouTube API Ready');
+      setIsApiReady(true);
+    };
+
     const tag = document.createElement('script');
     tag.src = 'https://www.youtube.com/iframe_api';
     const firstScriptTag = document.getElementsByTagName('script')[0];
     firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
-
-    window.onYouTubeIframeAPIReady = () => {
-      setIsApiReady(true);
-    };
   }, []);
 
-  // Initialize or update player
+  // Initialize player when API is ready
   useEffect(() => {
-    if (!isApiReady || !containerRef.current) return;
-
-    const currentSong = PLAYLIST[currentIndex];
+    if (!isApiReady) return;
     
-    if (playerRef.current) {
-      // Load new video if song changed
-      playerRef.current.loadVideoById(currentSong.id);
-      if (isPlaying) {
-        playerRef.current.playVideo();
-      }
-    } else {
-      // Create new player
-      playerRef.current = new window.YT.Player(containerRef.current, {
-        height: '0',
-        width: '0',
-        videoId: currentSong.id,
-        playerVars: {
-          autoplay: 1,
-          loop: 1,
-          playlist: currentSong.id,
-        },
-        events: {
-          onReady: (event: any) => {
-            event.target.playVideo();
-            setIsPlaying(true);
-          },
-          onStateChange: (event: any) => {
-            // 1 = playing, 2 = paused
-            setIsPlaying(event.data === 1);
-          },
-        },
-      });
+    // Make sure the container exists
+    const container = document.getElementById(PLAYER_ID);
+    if (!container) {
+      console.log('Container not found');
+      return;
     }
+
+    if (playerRef.current) {
+      // Player already exists, load new video
+      const currentSong = PLAYLIST[currentIndex];
+      playerRef.current.loadVideoById({
+        videoId: currentSong.id,
+        startSeconds: 0,
+      });
+      return;
+    }
+
+    // Create new player
+    const currentSong = PLAYLIST[currentIndex];
+    console.log('Creating YouTube player for:', currentSong.title);
+    
+    playerRef.current = new window.YT.Player(PLAYER_ID, {
+      height: '1',
+      width: '1',
+      videoId: currentSong.id,
+      playerVars: {
+        autoplay: 1,
+        loop: 1,
+        playlist: currentSong.id,
+        controls: 0,
+        disablekb: 1,
+        fs: 0,
+        modestbranding: 1,
+      },
+      events: {
+        onReady: (event: any) => {
+          console.log('Player ready');
+          setIsPlayerReady(true);
+          event.target.playVideo();
+        },
+        onStateChange: (event: any) => {
+          console.log('Player state:', event.data);
+          // -1 = unstarted, 0 = ended, 1 = playing, 2 = paused, 3 = buffering, 5 = cued
+          if (event.data === 1) {
+            setIsPlaying(true);
+          } else if (event.data === 2 || event.data === 0) {
+            setIsPlaying(false);
+          }
+        },
+        onError: (event: any) => {
+          console.error('YouTube player error:', event.data);
+        },
+      },
+    });
   }, [isApiReady, currentIndex]);
 
   const handleSongClick = useCallback((index: number) => {
+    if (!playerRef.current || !isPlayerReady) {
+      console.log('Player not ready yet');
+      return;
+    }
+
     if (index === currentIndex) {
       // Toggle play/pause for current song
-      if (playerRef.current) {
-        if (isPlaying) {
-          playerRef.current.pauseVideo();
-        } else {
-          playerRef.current.playVideo();
-        }
+      if (isPlaying) {
+        playerRef.current.pauseVideo();
+      } else {
+        playerRef.current.playVideo();
       }
     } else {
       // Switch to new song
       setCurrentIndex(index);
-      setIsPlaying(true);
+      const newSong = PLAYLIST[index];
+      playerRef.current.loadVideoById({
+        videoId: newSong.id,
+        startSeconds: 0,
+      });
     }
-  }, [currentIndex, isPlaying]);
+  }, [currentIndex, isPlaying, isPlayerReady]);
 
   return (
     <div className="rounded-lg border bg-card p-3">
@@ -128,7 +162,7 @@ const MusicPlayer = () => {
               {isCurrentSong && isPlaying && (
                 <span className="ml-auto text-xs text-muted-foreground animate-pulse">Playing</span>
               )}
-              {isCurrentSong && !isPlaying && (
+              {isCurrentSong && !isPlaying && isPlayerReady && (
                 <span className="ml-auto text-xs text-muted-foreground">Paused</span>
               )}
             </button>
@@ -136,8 +170,11 @@ const MusicPlayer = () => {
         })}
       </div>
 
-      {/* Hidden YouTube player container */}
-      <div ref={containerRef} className="hidden" />
+      {/* Hidden YouTube player - must use ID for YouTube API */}
+      <div 
+        id={PLAYER_ID} 
+        className="absolute -left-[9999px] w-1 h-1 overflow-hidden"
+      />
     </div>
   );
 };
