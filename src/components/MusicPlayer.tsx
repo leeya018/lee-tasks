@@ -12,7 +12,7 @@ const PLAYLIST = [
 ];
 
 const MusicPlayer = () => {
-  const [currentIndex, setCurrentIndex] = useState<number | null>(null);
+  const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   const handlePlay = (index: number) => {
     setCurrentIndex(index);
