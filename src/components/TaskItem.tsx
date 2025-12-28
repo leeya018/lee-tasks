@@ -73,11 +73,12 @@ export function TaskItem({
       />
       <span
         className={cn(
-          'flex-1 text-sm transition-all duration-200',
+          'flex-1 text-sm transition-all duration-200 flex items-center gap-2',
           task.done && 'line-through text-muted-foreground'
         )}
       >
         {task.text}
+        {task.done && <Check className="h-4 w-4 text-green-500 shrink-0" />}
       </span>
       <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
         <Button
