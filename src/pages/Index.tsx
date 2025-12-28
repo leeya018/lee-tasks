@@ -42,7 +42,7 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="container max-w-2xl mx-auto px-4">
+        <div className="container max-w-7xl mx-auto px-4">
           <div className="flex items-center justify-between h-14">
             <div className="flex items-center gap-2">
               <CheckSquare className="h-6 w-6 text-primary" />
@@ -53,59 +53,62 @@ const Index = () => {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="container max-w-2xl mx-auto px-4 pb-8">
-        {/* Music Player */}
-        <div className="mt-4">
-          <MusicPlayer />
-        </div>
+      {/* Main Content - 3 Column Layout */}
+      <main className="container max-w-7xl mx-auto px-4 pb-8 mt-4">
+        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr_280px] gap-6">
+          {/* Left Column - Timer */}
+          <div className="lg:sticky lg:top-20 lg:self-start">
+            <Timer />
+          </div>
 
-        {/* Timer */}
-        <div className="mt-4">
-          <Timer />
-        </div>
+          {/* Middle Column - Tasks */}
+          <div className="space-y-4">
+            {/* Date Navigation */}
+            <DateNavigation
+              selectedDate={selectedDate}
+              onPreviousDay={goToPreviousDay}
+              onNextDay={goToNextDay}
+              onToday={goToToday}
+            />
 
-        {/* Date Navigation */}
-        <DateNavigation
-          selectedDate={selectedDate}
-          onPreviousDay={goToPreviousDay}
-          onNextDay={goToNextDay}
-          onToday={goToToday}
-        />
+            {/* Categories and Tasks */}
+            {categories.length === 0 ? (
+              <div className="text-center py-12">
+                <CheckSquare className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
+                <h2 className="text-lg font-medium text-foreground mb-2">
+                  No categories yet
+                </h2>
+                <p className="text-sm text-muted-foreground mb-6">
+                  Create your first category to start organizing your tasks
+                </p>
+              </div>
+            ) : (
+              categories.map((category) => (
+                <CategoryCard
+                  key={category.id}
+                  category={category}
+                  tasks={tasksForDate.filter((t) => t.categoryId === category.id)}
+                  onUpdateCategory={updateCategory}
+                  onDeleteCategory={deleteCategory}
+                  onAddTask={addTask}
+                  onToggleTask={toggleTask}
+                  onUpdateTask={updateTask}
+                  onDeleteTask={deleteTask}
+                  onMoveTaskToNextDay={moveTaskToNextDay}
+                  onCopyTaskToNextDay={copyTaskToNextDay}
+                  onMoveCategoryTasksToNextDay={moveCategoryTasksToNextDay}
+                  onCopyCategoryTasksToNextDay={copyCategoryTasksToNextDay}
+                />
+              ))
+            )}
 
-        {/* Categories and Tasks */}
-        <div className="space-y-4">
-          {categories.length === 0 ? (
-            <div className="text-center py-12">
-              <CheckSquare className="h-12 w-12 text-muted-foreground/50 mx-auto mb-4" />
-              <h2 className="text-lg font-medium text-foreground mb-2">
-                No categories yet
-              </h2>
-              <p className="text-sm text-muted-foreground mb-6">
-                Create your first category to start organizing your tasks
-              </p>
-            </div>
-          ) : (
-            categories.map((category) => (
-              <CategoryCard
-                key={category.id}
-                category={category}
-                tasks={tasksForDate.filter((t) => t.categoryId === category.id)}
-                onUpdateCategory={updateCategory}
-                onDeleteCategory={deleteCategory}
-                onAddTask={addTask}
-                onToggleTask={toggleTask}
-                onUpdateTask={updateTask}
-                onDeleteTask={deleteTask}
-                onMoveTaskToNextDay={moveTaskToNextDay}
-                onCopyTaskToNextDay={copyTaskToNextDay}
-                onMoveCategoryTasksToNextDay={moveCategoryTasksToNextDay}
-                onCopyCategoryTasksToNextDay={copyCategoryTasksToNextDay}
-              />
-            ))
-          )}
+            <AddCategory onAdd={addCategory} />
+          </div>
 
-          <AddCategory onAdd={addCategory} />
+          {/* Right Column - Music Player */}
+          <div className="lg:sticky lg:top-20 lg:self-start">
+            <MusicPlayer />
+          </div>
         </div>
       </main>
     </div>
