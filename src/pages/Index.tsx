@@ -19,6 +19,9 @@ const Index = () => {
     toggleTask,
     deleteTask,
     moveTaskToNextDay,
+    copyTaskToNextDay,
+    moveCategoryTasksToNextDay,
+    copyCategoryTasksToNextDay,
     goToPreviousDay,
     goToNextDay,
     goToToday,
@@ -83,6 +86,9 @@ const Index = () => {
                 onUpdateTask={updateTask}
                 onDeleteTask={deleteTask}
                 onMoveTaskToNextDay={moveTaskToNextDay}
+                onCopyTaskToNextDay={copyTaskToNextDay}
+                onMoveCategoryTasksToNextDay={moveCategoryTasksToNextDay}
+                onCopyCategoryTasksToNextDay={copyCategoryTasksToNextDay}
               />
             ))
           )}

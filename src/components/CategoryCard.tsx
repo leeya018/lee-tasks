@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, Check, X } from 'lucide-react';
+import { Plus, Pencil, Trash2, Check, X, ArrowRight, Copy } from 'lucide-react';
 import { Category, Task, CategoryColor, COLOR_CLASSES, CATEGORY_COLORS } from '@/types/task';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -28,6 +28,9 @@ interface CategoryCardProps {
   onUpdateTask: (id: string, text: string) => void;
   onDeleteTask: (id: string) => void;
   onMoveTaskToNextDay: (id: string) => void;
+  onCopyTaskToNextDay: (id: string) => void;
+  onMoveCategoryTasksToNextDay: (categoryId: string) => void;
+  onCopyCategoryTasksToNextDay: (categoryId: string) => void;
 }
 
 export function CategoryCard({
@@ -40,6 +43,9 @@ export function CategoryCard({
   onUpdateTask,
   onDeleteTask,
   onMoveTaskToNextDay,
+  onCopyTaskToNextDay,
+  onMoveCategoryTasksToNextDay,
+  onCopyCategoryTasksToNextDay,
 }: CategoryCardProps) {
   const [newTaskText, setNewTaskText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -116,6 +122,24 @@ export function CategoryCard({
                 size="icon"
                 variant="ghost"
                 className="h-8 w-8"
+                onClick={() => onCopyCategoryTasksToNextDay(category.id)}
+                title="Copy all tasks to next day"
+              >
+                <Copy className="h-4 w-4 text-muted-foreground" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8"
+                onClick={() => onMoveCategoryTasksToNextDay(category.id)}
+                title="Move all tasks to next day"
+              >
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+              </Button>
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8"
                 onClick={() => setIsEditing(true)}
               >
                 <Pencil className="h-4 w-4 text-muted-foreground" />
@@ -161,6 +185,7 @@ export function CategoryCard({
                 onUpdate={onUpdateTask}
                 onDelete={onDeleteTask}
                 onMoveToNextDay={onMoveTaskToNextDay}
+                onCopyToNextDay={onCopyTaskToNextDay}
               />
             ))
           )}

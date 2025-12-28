@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, Pencil, Trash2, ArrowRight, X } from 'lucide-react';
+import { Check, Pencil, Trash2, ArrowRight, Copy, X } from 'lucide-react';
 import { Task } from '@/types/task';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
@@ -12,6 +12,7 @@ interface TaskItemProps {
   onUpdate: (id: string, text: string) => void;
   onDelete: (id: string) => void;
   onMoveToNextDay: (id: string) => void;
+  onCopyToNextDay: (id: string) => void;
 }
 
 export function TaskItem({
@@ -20,6 +21,7 @@ export function TaskItem({
   onUpdate,
   onDelete,
   onMoveToNextDay,
+  onCopyToNextDay,
 }: TaskItemProps) {
   const [isEditing, setIsEditing] = useState(false);
   const [editText, setEditText] = useState(task.text);
@@ -89,6 +91,15 @@ export function TaskItem({
           title="Edit task"
         >
           <Pencil className="h-3.5 w-3.5 text-muted-foreground" />
+        </Button>
+        <Button
+          size="icon"
+          variant="ghost"
+          className="h-7 w-7"
+          onClick={() => onCopyToNextDay(task.id)}
+          title="Copy to next day"
+        >
+          <Copy className="h-3.5 w-3.5 text-muted-foreground" />
         </Button>
         <Button
           size="icon"
