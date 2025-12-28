@@ -2,9 +2,13 @@ import { useState } from 'react';
 import { Music, Play } from 'lucide-react';
 
 const PLAYLIST = [
-  { id: 'w8l33K5D5CI', title: 'Song 1' },
-  { id: 'niG3YMU6jFk', title: 'Song 2' },
-  { id: '4MKsmDnjuD0', title: 'Song 3' },
+  { id: 'w8l33K5D5CI', title: 'Beéle, Ovy On The Drums - mi refe' },
+  { id: 'niG3YMU6jFk', title: 'Adele - Oh My God' },
+  { id: '4MKsmDnjuD0', title: 'Thoth – Voice of the Infinite' },
+  { id: '59EUOA9SOsc', title: 'Orhan Ölmez - Yani Olmuyor' },
+  { id: 'aIsXLXEazM4', title: 'אריאלה ברוך - בלי כלום' },
+  { id: 'sAz2bRy8-L8', title: 'Beyoncé - Rocket' },
+  { id: 'eH4F1Tdb040', title: 'Stephen - Crossfire' },
 ];
 
 const MusicPlayer = () => {
