@@ -95,8 +95,18 @@ const MusicPlayer = () => {
           // -1 = unstarted, 0 = ended, 1 = playing, 2 = paused, 3 = buffering, 5 = cued
           if (event.data === 1) {
             setIsPlaying(true);
-          } else if (event.data === 2 || event.data === 0) {
+          } else if (event.data === 2) {
             setIsPlaying(false);
+          } else if (event.data === 0) {
+            // Song ended - play next song (loop to beginning if at end)
+            setIsPlaying(false);
+            const nextIndex = (currentIndex + 1) % PLAYLIST.length;
+            setCurrentIndex(nextIndex);
+            const nextSong = PLAYLIST[nextIndex];
+            playerRef.current?.loadVideoById({
+              videoId: nextSong.id,
+              startSeconds: 0,
+            });
           }
         },
         onError: (event: any) => {
