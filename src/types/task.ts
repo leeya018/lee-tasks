@@ -1,9 +1,16 @@
 export type CategoryColor = 'red' | 'orange' | 'yellow' | 'green' | 'teal' | 'blue' | 'purple' | 'pink';
 
+export interface CategoryLink {
+  id: string;
+  name: string;
+  url: string;
+}
+
 export interface Category {
   id: string;
   name: string;
   color: CategoryColor;
+  links?: CategoryLink[];
 }
 
 export interface Task {

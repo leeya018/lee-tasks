@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Category, Task, TaskManagerData, CategoryColor } from '@/types/task';
+import { Category, Task, TaskManagerData, CategoryColor, CategoryLink } from '@/types/task';
 import { format, addDays } from 'date-fns';
 
 const STORAGE_KEY = 'daily-task-manager';
@@ -55,11 +55,34 @@ export function useTaskManager() {
     return newCategory;
   }, []);
 
-  const updateCategory = useCallback((id: string, name: string, color: CategoryColor) => {
+  const updateCategory = useCallback((id: string, name: string, color: CategoryColor, links?: CategoryLink[]) => {
     setData(prev => ({
       ...prev,
       categories: prev.categories.map(cat =>
-        cat.id === id ? { ...cat, name, color } : cat
+        cat.id === id ? { ...cat, name, color, links } : cat
+      ),
+    }));
+  }, []);
+
+  const addCategoryLink = useCallback((categoryId: string, name: string, url: string) => {
+    const newLink: CategoryLink = { id: generateId(), name, url };
+    setData(prev => ({
+      ...prev,
+      categories: prev.categories.map(cat =>
+        cat.id === categoryId 
+          ? { ...cat, links: [...(cat.links || []), newLink] }
+          : cat
+      ),
+    }));
+  }, []);
+
+  const deleteCategoryLink = useCallback((categoryId: string, linkId: string) => {
+    setData(prev => ({
+      ...prev,
+      categories: prev.categories.map(cat =>
+        cat.id === categoryId 
+          ? { ...cat, links: (cat.links || []).filter(l => l.id !== linkId) }
+          : cat
       ),
     }));
   }, []);
@@ -280,6 +303,8 @@ export function useTaskManager() {
     addCategory,
     updateCategory,
     deleteCategory,
+    addCategoryLink,
+    deleteCategoryLink,
 
     // Task operations
     addTask,
