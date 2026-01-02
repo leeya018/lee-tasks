@@ -166,12 +166,12 @@ export function useTaskManager() {
     });
   }, [dateKey]);
 
-  const moveTaskToNextDay = useCallback((taskId: string) => {
+  const moveTaskToDate = useCallback((taskId: string, targetDate: Date) => {
     setData(prev => {
       const task = prev.tasks[dateKey]?.find(t => t.id === taskId);
       if (!task) return prev;
 
-      const nextDateKey = formatDateKey(addDays(selectedDate, 1));
+      const targetDateKey = formatDateKey(targetDate);
       const movedTask = { ...task, done: false };
 
       // Remove from current date
@@ -184,12 +184,16 @@ export function useTaskManager() {
         delete newTasks[dateKey];
       }
 
-      // Add to next date
-      newTasks[nextDateKey] = [...(newTasks[nextDateKey] || []), movedTask];
+      // Add to target date
+      newTasks[targetDateKey] = [...(newTasks[targetDateKey] || []), movedTask];
 
       return { ...prev, tasks: newTasks };
     });
-  }, [dateKey, selectedDate]);
+  }, [dateKey]);
+
+  const moveTaskToNextDay = useCallback((taskId: string) => {
+    moveTaskToDate(taskId, addDays(selectedDate, 1));
+  }, [moveTaskToDate, selectedDate]);
 
   const copyTaskToNextDay = useCallback((taskId: string) => {
     setData(prev => {
@@ -284,6 +288,7 @@ export function useTaskManager() {
     toggleTaskStar,
     reorderTasks,
     deleteTask,
+    moveTaskToDate,
     moveTaskToNextDay,
     copyTaskToNextDay,
     moveCategoryTasksToNextDay,

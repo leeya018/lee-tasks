@@ -27,7 +27,7 @@ interface CategoryCardProps {
   onToggleTask: (id: string) => void;
   onUpdateTask: (id: string, text: string) => void;
   onDeleteTask: (id: string) => void;
-  onMoveTaskToNextDay: (id: string) => void;
+  onMoveTaskToDate: (id: string, date: Date) => void;
   onCopyTaskToNextDay: (id: string) => void;
   onMoveCategoryTasksToNextDay: (categoryId: string) => void;
   onCopyCategoryTasksToNextDay: (categoryId: string) => void;
@@ -44,7 +44,7 @@ export function CategoryCard({
   onToggleTask,
   onUpdateTask,
   onDeleteTask,
-  onMoveTaskToNextDay,
+  onMoveTaskToDate,
   onCopyTaskToNextDay,
   onMoveCategoryTasksToNextDay,
   onCopyCategoryTasksToNextDay,
@@ -217,7 +217,7 @@ export function CategoryCard({
                   onToggle={onToggleTask}
                   onUpdate={onUpdateTask}
                   onDelete={onDeleteTask}
-                  onMoveToNextDay={onMoveTaskToNextDay}
+                  onMoveToDate={onMoveTaskToDate}
                   onCopyToNextDay={onCopyTaskToNextDay}
                   onToggleStar={onToggleTaskStar}
                 />
