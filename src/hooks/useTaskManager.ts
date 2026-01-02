@@ -118,6 +118,41 @@ export function useTaskManager() {
     }));
   }, [dateKey]);
 
+  const toggleTaskStar = useCallback((taskId: string) => {
+    setData(prev => ({
+      ...prev,
+      tasks: {
+        ...prev.tasks,
+        [dateKey]: prev.tasks[dateKey]?.map(task =>
+          task.id === taskId ? { ...task, starred: !task.starred } : task
+        ) || [],
+      },
+    }));
+  }, [dateKey]);
+
+  const reorderTasks = useCallback((categoryId: string, fromIndex: number, toIndex: number) => {
+    setData(prev => {
+      const categoryTasks = prev.tasks[dateKey]?.filter(t => t.categoryId === categoryId) || [];
+      const otherTasks = prev.tasks[dateKey]?.filter(t => t.categoryId !== categoryId) || [];
+      
+      if (fromIndex < 0 || toIndex < 0 || fromIndex >= categoryTasks.length || toIndex >= categoryTasks.length) {
+        return prev;
+      }
+
+      const reordered = [...categoryTasks];
+      const [movedTask] = reordered.splice(fromIndex, 1);
+      reordered.splice(toIndex, 0, movedTask);
+
+      return {
+        ...prev,
+        tasks: {
+          ...prev.tasks,
+          [dateKey]: [...otherTasks, ...reordered],
+        },
+      };
+    });
+  }, [dateKey]);
+
   const deleteTask = useCallback((taskId: string) => {
     setData(prev => {
       const filtered = prev.tasks[dateKey]?.filter(t => t.id !== taskId) || [];
@@ -246,6 +281,8 @@ export function useTaskManager() {
     addTask,
     updateTask,
     toggleTask,
+    toggleTaskStar,
+    reorderTasks,
     deleteTask,
     moveTaskToNextDay,
     copyTaskToNextDay,

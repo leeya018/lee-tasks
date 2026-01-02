@@ -31,6 +31,8 @@ interface CategoryCardProps {
   onCopyTaskToNextDay: (id: string) => void;
   onMoveCategoryTasksToNextDay: (categoryId: string) => void;
   onCopyCategoryTasksToNextDay: (categoryId: string) => void;
+  onToggleTaskStar: (id: string) => void;
+  onReorderTasks: (categoryId: string, fromIndex: number, toIndex: number) => void;
 }
 
 export function CategoryCard({
@@ -46,11 +48,15 @@ export function CategoryCard({
   onCopyTaskToNextDay,
   onMoveCategoryTasksToNextDay,
   onCopyCategoryTasksToNextDay,
+  onToggleTaskStar,
+  onReorderTasks,
 }: CategoryCardProps) {
   const [newTaskText, setNewTaskText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState(category.name);
   const [editColor, setEditColor] = useState<CategoryColor>(category.color);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const colorClasses = COLOR_CLASSES[category.color];
 
@@ -72,6 +78,23 @@ export function CategoryCard({
     setEditName(category.name);
     setEditColor(category.color);
     setIsEditing(false);
+  };
+
+  const handleDragStart = (index: number) => {
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    setDragOverIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    if (draggedIndex !== null && dragOverIndex !== null && draggedIndex !== dragOverIndex) {
+      onReorderTasks(category.id, draggedIndex, dragOverIndex);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   return (
@@ -177,16 +200,28 @@ export function CategoryCard({
           {tasks.length === 0 ? (
             <p className="text-sm text-muted-foreground py-2">No tasks yet</p>
           ) : (
-            tasks.map((task) => (
-              <TaskItem
+            tasks.map((task, index) => (
+              <div
                 key={task.id}
-                task={task}
-                onToggle={onToggleTask}
-                onUpdate={onUpdateTask}
-                onDelete={onDeleteTask}
-                onMoveToNextDay={onMoveTaskToNextDay}
-                onCopyToNextDay={onCopyTaskToNextDay}
-              />
+                draggable
+                onDragStart={() => handleDragStart(index)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDragEnd={handleDragEnd}
+                className={cn(
+                  "transition-all",
+                  dragOverIndex === index && draggedIndex !== index && "border-t-2 border-primary"
+                )}
+              >
+                <TaskItem
+                  task={task}
+                  onToggle={onToggleTask}
+                  onUpdate={onUpdateTask}
+                  onDelete={onDeleteTask}
+                  onMoveToNextDay={onMoveTaskToNextDay}
+                  onCopyToNextDay={onCopyTaskToNextDay}
+                  onToggleStar={onToggleTaskStar}
+                />
+              </div>
             ))
           )}
         </div>
