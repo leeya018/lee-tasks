@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Pencil, Trash2, Check, X, ArrowRight, Copy } from 'lucide-react';
+import { Plus, Pencil, Trash2, Check, X, ArrowRight, Copy, Link, ExternalLink } from 'lucide-react';
 import { Category, Task, CategoryColor, COLOR_CLASSES, CATEGORY_COLORS } from '@/types/task';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,11 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 
 interface CategoryCardProps {
   category: Category;
@@ -33,6 +38,8 @@ interface CategoryCardProps {
   onCopyCategoryTasksToNextDay: (categoryId: string) => void;
   onToggleTaskStar: (id: string) => void;
   onReorderTasks: (categoryId: string, fromIndex: number, toIndex: number) => void;
+  onAddCategoryLink: (categoryId: string, name: string, url: string) => void;
+  onDeleteCategoryLink: (categoryId: string, linkId: string) => void;
 }
 
 export function CategoryCard({
@@ -50,6 +57,8 @@ export function CategoryCard({
   onCopyCategoryTasksToNextDay,
   onToggleTaskStar,
   onReorderTasks,
+  onAddCategoryLink,
+  onDeleteCategoryLink,
 }: CategoryCardProps) {
   const [newTaskText, setNewTaskText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
@@ -57,14 +66,36 @@ export function CategoryCard({
   const [editColor, setEditColor] = useState<CategoryColor>(category.color);
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const [linksOpen, setLinksOpen] = useState(false);
+  const [newLinkName, setNewLinkName] = useState('');
+  const [newLinkUrl, setNewLinkUrl] = useState('');
 
   const colorClasses = COLOR_CLASSES[category.color];
+  const links = category.links || [];
 
   const handleAddTask = () => {
     if (newTaskText.trim()) {
       onAddTask(category.id, newTaskText.trim());
       setNewTaskText('');
     }
+  };
+
+  const handleAddLink = () => {
+    if (newLinkName.trim() && newLinkUrl.trim()) {
+      let url = newLinkUrl.trim();
+      if (!url.startsWith('http://') && !url.startsWith('https://')) {
+        url = 'https://' + url;
+      }
+      onAddCategoryLink(category.id, newLinkName.trim(), url);
+      setNewLinkName('');
+      setNewLinkUrl('');
+    }
+  };
+
+  const handleOpenAllLinks = () => {
+    links.forEach((link) => {
+      window.open(link.url, '_blank');
+    });
   };
 
   const handleSaveCategory = () => {
@@ -139,8 +170,34 @@ export function CategoryCard({
               <span className="text-xs text-muted-foreground">
                 ({tasks.length} {tasks.length === 1 ? 'task' : 'tasks'})
               </span>
+              {links.length > 0 && (
+                <span className="text-xs text-muted-foreground">
+                  • {links.length} {links.length === 1 ? 'link' : 'links'}
+                </span>
+              )}
             </div>
             <div className="flex items-center gap-1">
+              {links.length > 0 && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-8 gap-1 text-xs"
+                  onClick={handleOpenAllLinks}
+                  title="Open all links"
+                >
+                  <ExternalLink className="h-3.5 w-3.5" />
+                  Open All
+                </Button>
+              )}
+              <Button
+                size="icon"
+                variant="ghost"
+                className="h-8 w-8"
+                onClick={() => setLinksOpen(!linksOpen)}
+                title="Manage links"
+              >
+                <Link className={cn("h-4 w-4", linksOpen ? "text-primary" : "text-muted-foreground")} />
+              </Button>
               <Button
                 size="icon"
                 variant="ghost"
@@ -195,7 +252,62 @@ export function CategoryCard({
           </div>
         )}
       </CardHeader>
-      <CardContent className="pt-0">
+
+      {/* Links Section */}
+      <Collapsible open={linksOpen} onOpenChange={setLinksOpen}>
+        <CollapsibleContent>
+          <div className="px-6 pb-3 border-b">
+            <div className="space-y-2">
+              {links.map((link) => (
+                <div key={link.id} className="flex items-center gap-2 group">
+                  <Link className="h-3.5 w-3.5 text-muted-foreground shrink-0" />
+                  <a 
+                    href={link.url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-primary hover:underline truncate flex-1"
+                  >
+                    {link.name}
+                  </a>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-6 w-6 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() => onDeleteCategoryLink(category.id, link.id)}
+                  >
+                    <Trash2 className="h-3 w-3 text-destructive" />
+                  </Button>
+                </div>
+              ))}
+              <div className="flex gap-2 pt-1">
+                <Input
+                  placeholder="Link name"
+                  value={newLinkName}
+                  onChange={(e) => setNewLinkName(e.target.value)}
+                  className="h-8 text-sm flex-1"
+                />
+                <Input
+                  placeholder="URL"
+                  value={newLinkUrl}
+                  onChange={(e) => setNewLinkUrl(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAddLink()}
+                  className="h-8 text-sm flex-1"
+                />
+                <Button 
+                  size="icon" 
+                  className="h-8 w-8" 
+                  onClick={handleAddLink}
+                  disabled={!newLinkName.trim() || !newLinkUrl.trim()}
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+          </div>
+        </CollapsibleContent>
+      </Collapsible>
+
+      <CardContent className="pt-3">
         <div className="space-y-1 mb-3">
           {tasks.length === 0 ? (
             <p className="text-sm text-muted-foreground py-2">No tasks yet</p>

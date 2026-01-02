@@ -17,6 +17,8 @@ const Index = () => {
     addCategory,
     updateCategory,
     deleteCategory,
+    addCategoryLink,
+    deleteCategoryLink,
     addTask,
     updateTask,
     toggleTask,
@@ -105,6 +107,8 @@ const Index = () => {
                   onCopyCategoryTasksToNextDay={copyCategoryTasksToNextDay}
                   onToggleTaskStar={toggleTaskStar}
                   onReorderTasks={reorderTasks}
+                  onAddCategoryLink={addCategoryLink}
+                  onDeleteCategoryLink={deleteCategoryLink}
                 />
               ))
             )}
