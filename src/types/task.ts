@@ -11,6 +11,7 @@ export interface Task {
   categoryId: string;
   text: string;
   done: boolean;
+  starred?: boolean;
 }
 
 export interface TasksByDate {
