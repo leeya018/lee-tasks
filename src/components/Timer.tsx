@@ -10,7 +10,11 @@ const TIMER_OPTIONS = [
   { label: '30 min', seconds: 1800 },
 ];
 
-export function Timer() {
+interface TimerProps {
+  onTimerStart?: () => void;
+}
+
+export function Timer({ onTimerStart }: TimerProps) {
   const [selectedDuration, setSelectedDuration] = useState<number | null>(null);
   const [timeLeft, setTimeLeft] = useState<number>(0);
   const [isRunning, setIsRunning] = useState(false);
@@ -67,6 +71,7 @@ export function Timer() {
     setTimeLeft(seconds);
     setIsRunning(true);
     setIsFinished(false);
+    onTimerStart?.();
   };
 
   const handleReset = () => {
@@ -80,6 +85,7 @@ export function Timer() {
       setTimeLeft(selectedDuration);
       setIsRunning(true);
       setIsFinished(false);
+      onTimerStart?.();
     }
   };
 

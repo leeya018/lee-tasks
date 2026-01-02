@@ -20,7 +20,11 @@ declare global {
 
 const PLAYER_ID = 'youtube-music-player';
 
-const MusicPlayer = () => {
+interface MusicPlayerProps {
+  autoPlayTrigger?: number;
+}
+
+const MusicPlayer = ({ autoPlayTrigger }: MusicPlayerProps) => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isApiReady, setIsApiReady] = useState(false);
@@ -121,6 +125,13 @@ const MusicPlayer = () => {
       },
     });
   }, [isApiReady, currentIndex]);
+
+  // Auto-play when triggered by timer
+  useEffect(() => {
+    if (autoPlayTrigger && autoPlayTrigger > 0 && playerRef.current && isPlayerReady && !isPlaying) {
+      playerRef.current.playVideo();
+    }
+  }, [autoPlayTrigger, isPlayerReady, isPlaying]);
 
   const handleSongClick = useCallback((index: number) => {
     if (!playerRef.current || !isPlayerReady) {

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { CheckSquare } from 'lucide-react';
 import { useTaskManager } from '@/hooks/useTaskManager';
 import { DateNavigation } from '@/components/DateNavigation';
@@ -9,6 +10,8 @@ import { MusicPlayer } from '@/components/MusicPlayer';
 import { MonthlyPayments } from '@/components/MonthlyPayments';
 
 const Index = () => {
+  const [musicAutoPlayTrigger, setMusicAutoPlayTrigger] = useState(0);
+  
   const {
     categories,
     tasksForDate,
@@ -63,8 +66,9 @@ const Index = () => {
         <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
           {/* Left Column - Timer & Music Player */}
           <div className="lg:sticky lg:top-20 lg:self-start space-y-4">
-            <Timer />
-            <MusicPlayer />
+            <Timer onTimerStart={() => setMusicAutoPlayTrigger(prev => prev + 1)} />
+            <MusicPlayer autoPlayTrigger={musicAutoPlayTrigger} />
+            <MonthlyPayments />
             <MonthlyPayments />
           </div>
 
