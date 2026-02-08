@@ -286,6 +286,27 @@ export function useTaskManager() {
     setSelectedDate(new Date());
   }, []);
 
+  const moveAllTasksToToday = useCallback(() => {
+    const todayKey = formatDateKey(new Date());
+    if (dateKey === todayKey) return; // Already on today
+
+    setData(prev => {
+      const tasksToMove = prev.tasks[dateKey] || [];
+      if (tasksToMove.length === 0) return prev;
+
+      const movedTasks = tasksToMove.map(t => ({ ...t, done: false }));
+      const newTasks = { ...prev.tasks };
+      
+      // Remove from current date
+      delete newTasks[dateKey];
+      
+      // Add to today
+      newTasks[todayKey] = [...(newTasks[todayKey] || []), ...movedTasks];
+
+      return { ...prev, tasks: newTasks };
+    });
+  }, [dateKey]);
+
   // Clear all data
   const clearAllData = useCallback(() => {
     setData(getDefaultData());
@@ -323,6 +344,7 @@ export function useTaskManager() {
     goToPreviousDay,
     goToNextDay,
     goToToday,
+    moveAllTasksToToday,
 
     // Utils
     clearAllData,

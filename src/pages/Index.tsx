@@ -35,6 +35,7 @@ const Index = () => {
     goToPreviousDay,
     goToNextDay,
     goToToday,
+    moveAllTasksToToday,
     clearAllData,
   } = useTaskManager();
 
@@ -80,6 +81,7 @@ const Index = () => {
               onPreviousDay={goToPreviousDay}
               onNextDay={goToNextDay}
               onToday={goToToday}
+              onMoveAllToToday={moveAllTasksToToday}
             />
 
             {/* Categories and Tasks */}

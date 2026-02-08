@@ -1,5 +1,5 @@
 import { format, isToday } from 'date-fns';
-import { ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Calendar, MoveRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface DateNavigationProps {
@@ -7,6 +7,7 @@ interface DateNavigationProps {
   onPreviousDay: () => void;
   onNextDay: () => void;
   onToday: () => void;
+  onMoveAllToToday?: () => void;
 }
 
 export function DateNavigation({
@@ -14,6 +15,7 @@ export function DateNavigation({
   onPreviousDay,
   onNextDay,
   onToday,
+  onMoveAllToToday,
 }: DateNavigationProps) {
   const isCurrentDay = isToday(selectedDate);
   const dateDisplay = isCurrentDay
@@ -36,15 +38,31 @@ export function DateNavigation({
           {dateDisplay}
         </h2>
         {!isCurrentDay && (
-          <Button
-            variant="link"
-            size="sm"
-            onClick={onToday}
-            className="h-auto p-0 text-primary"
-          >
-            <Calendar className="h-3 w-3 mr-1" />
-            Jump to Today
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="link"
+              size="sm"
+              onClick={onToday}
+              className="h-auto p-0 text-primary"
+            >
+              <Calendar className="h-3 w-3 mr-1" />
+              Jump to Today
+            </Button>
+            {onMoveAllToToday && (
+              <>
+                <span className="text-muted-foreground">•</span>
+                <Button
+                  variant="link"
+                  size="sm"
+                  onClick={onMoveAllToToday}
+                  className="h-auto p-0 text-primary"
+                >
+                  <MoveRight className="h-3 w-3 mr-1" />
+                  Move all to Today
+                </Button>
+              </>
+            )}
+          </div>
         )}
       </div>
 
