@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Copy, Check, MoreVertical, Pencil, Trash2, X } from 'lucide-react';
+import { Copy, Check, MoreVertical, Pencil, Trash2, X, Eraser } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
@@ -25,6 +25,7 @@ interface PromptCard {
   id: string;
   content: string;
   createdAt: string;
+  copied?: boolean;
 }
 
 const STORAGE_KEY = 'prompts-data';
@@ -32,11 +33,11 @@ const STORAGE_KEY = 'prompts-data';
 export default function Prompts() {
   const [prompts, setPrompts] = useState<PromptCard[]>([]);
   const [newContent, setNewContent] = useState('');
-  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [isLoaded, setIsLoaded] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
   const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
+  const [clearAllOpen, setClearAllOpen] = useState(false);
 
   const addTextareaRef = useRef<HTMLTextAreaElement>(null);
   const editTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -50,6 +51,7 @@ export default function Prompts() {
           id: p.id,
           content: p.content,
           createdAt: p.createdAt,
+          copied: p.copied ?? false,
         })));
       } catch {}
     }
@@ -82,6 +84,7 @@ export default function Prompts() {
       id: crypto.randomUUID(),
       content: newContent.trim(),
       createdAt: new Date().toISOString(),
+      copied: false,
     };
     setPrompts(prev => [...prev, newPrompt]);
     setNewContent('');
@@ -97,9 +100,23 @@ export default function Prompts() {
   }, [handleAdd]);
 
   const handleCopy = useCallback(async (prompt: PromptCard) => {
+    if (prompt.copied) {
+      await navigator.clipboard.writeText('');
+      toast.error('You already used it', {
+        style: { color: 'red' },
+      });
+      return;
+    }
     await navigator.clipboard.writeText(prompt.content);
-    setCopiedId(prompt.id);
-    setTimeout(() => setCopiedId(null), 2000);
+    setPrompts(prev => prev.map(p =>
+      p.id === prompt.id ? { ...p, copied: true } : p
+    ));
+  }, []);
+
+  const confirmClearAll = useCallback(() => {
+    setPrompts([]);
+    setEditingId(null);
+    setClearAllOpen(false);
   }, []);
 
   const confirmDelete = useCallback(() => {
@@ -117,7 +134,7 @@ export default function Prompts() {
   const saveEdit = useCallback(() => {
     if (!editContent.trim() || !editingId) return;
     setPrompts(prev => prev.map(p =>
-      p.id === editingId ? { ...p, content: editContent.trim() } : p
+      p.id === editingId ? { ...p, content: editContent.trim(), copied: false } : p
     ));
     setEditingId(null);
     setEditContent('');
@@ -163,6 +180,21 @@ export default function Prompts() {
         </CardContent>
       </Card>
 
+      {/* Clear all button */}
+      {prompts.length > 0 && (
+        <div className="flex justify-end">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-muted-foreground hover:text-destructive gap-2"
+            onClick={() => setClearAllOpen(true)}
+          >
+            <Eraser className="h-4 w-4" />
+            Clear all
+          </Button>
+        </div>
+      )}
+
       {/* Prompt Cards */}
       {prompts.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
@@ -202,10 +234,10 @@ export default function Prompts() {
                     <Button
                       variant="ghost"
                       size="icon"
-                      className={`h-8 w-8 transition-colors ${copiedId === prompt.id ? 'text-green-500' : ''}`}
+                      className={`h-8 w-8 transition-colors ${prompt.copied ? 'text-green-500' : ''}`}
                       onClick={() => handleCopy(prompt)}
                     >
-                      {copiedId === prompt.id ? (
+                      {prompt.copied ? (
                         <Check className="h-4 w-4" />
                       ) : (
                         <Copy className="h-4 w-4" />
@@ -244,6 +276,27 @@ export default function Prompts() {
           </Card>
         ))
       )}
+
+      {/* Clear all confirmation modal */}
+      <AlertDialog open={clearAllOpen} onOpenChange={setClearAllOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Clear all prompts?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete all {prompts.length} prompt{prompts.length !== 1 ? 's' : ''}. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmClearAll}
+            >
+              Clear all
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
 
       {/* Delete confirmation modal */}
       <AlertDialog open={!!deleteTargetId} onOpenChange={(open) => { if (!open) setDeleteTargetId(null); }}>
