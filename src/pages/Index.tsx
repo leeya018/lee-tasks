@@ -4,7 +4,7 @@ import { useTaskManager } from '@/hooks/useTaskManager';
 import { DateNavigation } from '@/components/DateNavigation';
 import { CategoryCard } from '@/components/CategoryCard';
 import { AddCategory } from '@/components/AddCategory';
-import { SettingsPanel } from '@/components/SettingsPanel';
+import { TopNavigation } from '@/components/TopNavigation';
 import { Timer } from '@/components/Timer';
 import { MusicPlayer } from '@/components/MusicPlayer';
 import { MonthlyPayments } from '@/components/MonthlyPayments';
@@ -50,17 +50,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
-        <div className="container max-w-7xl mx-auto px-4">
-          <div className="flex items-center justify-between h-14">
-            <div className="flex items-center gap-2">
-              <CheckSquare className="h-6 w-6 text-primary" />
-              <h1 className="text-lg font-bold text-foreground">Daily Tasks</h1>
-            </div>
-            <SettingsPanel onClearAllData={clearAllData} />
-          </div>
-        </div>
-      </header>
+      <TopNavigation onClearAllData={clearAllData} />
 
       {/* Main Content - 2 Column Layout */}
       <main className="container max-w-5xl mx-auto px-4 pb-8 mt-4">
