@@ -1,8 +1,24 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Copy, Check, Trash2, Pencil, X } from 'lucide-react';
+import { Copy, Check, MoreVertical, Pencil, Trash2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { toast } from 'sonner';
 
 interface PromptCard {
@@ -20,6 +36,7 @@ export default function Prompts() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState('');
+  const [deleteTargetId, setDeleteTargetId] = useState<string | null>(null);
 
   const addTextareaRef = useRef<HTMLTextAreaElement>(null);
   const editTextareaRef = useRef<HTMLTextAreaElement>(null);
@@ -29,7 +46,6 @@ export default function Prompts() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Migrate old data that had title field
         setPrompts(parsed.map((p: PromptCard & { title?: string }) => ({
           id: p.id,
           content: p.content,
@@ -78,7 +94,6 @@ export default function Prompts() {
       e.preventDefault();
       handleAdd();
     }
-    // Shift+Enter: default textarea behavior (newline)
   }, [handleAdd]);
 
   const handleCopy = useCallback(async (prompt: PromptCard) => {
@@ -87,10 +102,12 @@ export default function Prompts() {
     setTimeout(() => setCopiedId(null), 2000);
   }, []);
 
-  const handleDelete = useCallback((id: string) => {
-    setPrompts(prev => prev.filter(p => p.id !== id));
-    if (editingId === id) setEditingId(null);
-  }, [editingId]);
+  const confirmDelete = useCallback(() => {
+    if (!deleteTargetId) return;
+    setPrompts(prev => prev.filter(p => p.id !== deleteTargetId));
+    if (editingId === deleteTargetId) setEditingId(null);
+    setDeleteTargetId(null);
+  }, [deleteTargetId, editingId]);
 
   const startEdit = useCallback((prompt: PromptCard) => {
     setEditingId(prompt.id);
@@ -119,7 +136,6 @@ export default function Prompts() {
     if (e.key === 'Escape') {
       cancelEdit();
     }
-    // Shift+Enter: default textarea behavior (newline)
   }, [saveEdit, cancelEdit]);
 
   if (!isLoaded) {
@@ -182,14 +198,7 @@ export default function Prompts() {
                     {prompt.content}
                   </p>
                   <div className="flex items-center gap-1 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => startEdit(prompt)}
-                    >
-                      <Pencil className="h-4 w-4" />
-                    </Button>
+                    {/* Copy button */}
                     <Button
                       variant="ghost"
                       size="icon"
@@ -202,14 +211,32 @@ export default function Prompts() {
                         <Copy className="h-4 w-4" />
                       )}
                     </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-muted-foreground hover:text-destructive opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => handleDelete(prompt.id)}
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+
+                    {/* 3-dot menu */}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => startEdit(prompt)}>
+                          <Pencil className="h-4 w-4 mr-2" />
+                          Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="text-destructive focus:text-destructive"
+                          onClick={() => setDeleteTargetId(prompt.id)}
+                        >
+                          <Trash2 className="h-4 w-4 mr-2" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
               )}
@@ -217,6 +244,27 @@ export default function Prompts() {
           </Card>
         ))
       )}
+
+      {/* Delete confirmation modal */}
+      <AlertDialog open={!!deleteTargetId} onOpenChange={(open) => { if (!open) setDeleteTargetId(null); }}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete prompt?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This action cannot be undone. The prompt will be permanently removed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={confirmDelete}
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
